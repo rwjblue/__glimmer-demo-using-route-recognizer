@@ -19,10 +19,24 @@ export function getHash(location) {
   }
 }
 
-export function recognize() {
-  let hash = getHash(window.location);
+let changeCallback, lastPath;
+function _hashchangeHandler() {
+  let path = getHash(window.location);
 
-  return router.recognize(hash);
+  if (path === lastPath) { return; }
+
+  lastPath = path;
+
+  let matches = router.recognize(path);
+
+  changeCallback(matches[0].handler, matches[0].params);
+}
+
+export function onChange(callback: Function) {
+  changeCallback = callback;
+
+  _hashchangeHandler(); // kick it off the first time
+  window.addEventListener('hashchange', _hashchangeHandler);
 }
 
 export default router;
